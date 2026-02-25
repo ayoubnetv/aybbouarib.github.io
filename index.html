@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ayoub Ait Bouarib — Network & Cybersecurity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --b900: #020b18;
+  --b800: #051428;
+  --b700: #071e3d;
+  --b600: #0a2a57;
+  --b500: #0d3875;
+  --blue: #1a6cff;
+  --cyan: #00c8ff;
+  --sky:  #5eb8ff;
+  --white: #f0f6ff;
+  --muted: #6a8ab5;
+  --line: rgba(30,120,255,0.15);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+
+body {
+  background: var(--b900);
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* CUSTOM CURSOR */
+.cursor {
+  position: fixed;
+  width: 12px; height: 12px;
+  background: var(--cyan);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  position: fixed;
+  width: 40px; height: 40px;
+  border: 1px solid rgba(0,200,255,0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: transform 0.18s ease, width 0.3s, height 0.3s;
+}
+body:hover .cursor { opacity:1; }
+
+/* ANIMATED BACKGROUND GRID */
+.grid-canvas {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+  animation: gridPan 40s linear infinite;
+}
+@keyframes gridPan { from{background-position:0 0} to{background-position:60px 60px} }
+
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(26,108,255,0.18), transparent 70%);
+  top: -100px; left: -100px;
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+.orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(0,200,255,0.12), transparent 70%);
+  bottom: 0; right: -80px;
+  animation: orbFloat2 15s ease-in-out infinite;
+}
+@keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
+@keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,-60px)} }
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6%;
+  height: 70px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(2,11,24,0.85);
+  backdrop-filter: blur(20px);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+.nav-logo em { color: var(--cyan); font-style: normal; }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+.nav-links a:hover { color: var(--cyan); }
+.nav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #00e676;
+  box-shadow: 0 0 8px #00e676;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* HERO */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 100px 6% 60px;
+  position: relative;
+  z-index: 1;
+  gap: 4rem;
+}
+.hero-left { position: relative; }
+.hero-eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0;
+  animation: slideIn 0.7s ease 0.1s forwards;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 30px; height: 1px;
+  background: var(--cyan);
+}
+.hero-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  color: var(--white);
+  opacity: 0;
+  animation: slideIn 0.7s ease 0.25s forwards;
+}
+.hero-name .line2 {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--blue);
+}
+.hero-title {
+  margin-top: 1.2rem;
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 400;
+  max-width: 420px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: slideIn 0.7s ease 0.4s forwards;
+}
+.hero-title strong { color: var(--sky); font-weight: 500; }
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: slideIn 0.7s ease 0.55s forwards;
+}
+.btn-solid {
+  padding: 0.8rem 2rem;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  border: none;
+  cursor: none;
+  transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
+}
+.btn-solid:hover {
+  background: var(--cyan);
+  color: var(--b900);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,200,255,0.3);
+}
+.btn-ghost {
+  padding: 0.8rem 2rem;
+  background: transparent;
+  color: var(--sky);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  border: 1px solid rgba(94,184,255,0.3);
+  cursor: none;
+  transition: all 0.25s;
+}
+.btn-ghost:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,200,255,0.06);
+  transform: translateY(-3px);
+}
+
+/* HERO RIGHT - PROFILE CARD */
+.hero-right {
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  animation: slideInRight 0.9s ease 0.3s forwards;
+}
+@keyframes slideInRight { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:none} }
+
+.profile-card {
+  position: relative;
+  width: 320px;
+}
+.card-border {
+  position: absolute;
+  inset: -1px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--blue), var(--cyan), var(--b600));
+  padding: 1px;
+  z-index: 0;
+}
+.card-inner {
+  position: relative;
+  background: var(--b800);
+  border-radius: 15px;
+  padding: 2rem;
+  z-index: 1;
+  overflow: hidden;
+}
+.card-inner::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,108,255,0.25), transparent 70%);
+}
+.card-avatar {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--b600), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+  border: 2px solid rgba(0,200,255,0.3);
+}
+.card-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.card-role {
+  font-size: 0.78rem;
+  color: var(--cyan);
+  letter-spacing: 0.06em;
+  margin-bottom: 1.5rem;
+}
+.card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.stat-box {
+  background: rgba(26,108,255,0.1);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--cyan);
+}
+.stat-lbl {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+.card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.ctag {
+  font-size: 0.68rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(26,108,255,0.15);
+  border: 1px solid rgba(26,108,255,0.3);
+  color: var(--sky);
+  letter-spacing: 0.04em;
+}
+.card-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 1.2rem 0;
+}
+.card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.card-info-row .icon { font-size: 0.85rem; opacity: 0.8; }
+.card-info-row a { color: var(--sky); text-decoration: none; }
+.card-info-row a:hover { color: var(--cyan); }
+
+@keyframes slideIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+/* SECTION BASE */
+section { padding: 100px 6%; position: relative; z-index: 1; }
+.sec-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+.sec-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--blue);
+  text-transform: uppercase;
+}
+.sec-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+.sec-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(26,108,255,0.4), transparent);
+}
+
+/* REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity:1; transform:none; }
+
+/* ABOUT */
+#about { background: var(--b800); }
+.about-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+.about-bio {
+  font-size: 1rem;
+  color: var(--muted);
+  line-height: 1.85;
+}
+.about-bio p { margin-bottom: 1.2rem; }
+.about-bio strong { color: var(--sky); font-weight: 500; }
+.about-bio .highlight {
+  border-left: 2px solid var(--cyan);
+  padding-left: 1.2rem;
+  margin: 1.5rem 0;
+  color: var(--white);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+.info-table { width: 100%; }
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--line);
+  gap: 1rem;
+}
+.info-key {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  min-width: 100px;
+  padding-top: 0.05rem;
+}
+.info-val {
+  font-size: 0.88rem;
+  color: var(--white);
+  line-height: 1.5;
+}
+.info-val.muted { color: var(--muted); }
+.info-val a { color: var(--sky); text-decoration: none; }
+.info-val a:hover { color: var(--cyan); }
+.lang-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 0.15rem 0.5rem;
+  margin-right: 0.3rem;
+  border-radius: 3px;
+  background: rgba(26,108,255,0.15);
+  color: var(--sky);
+  border: 1px solid rgba(26,108,255,0.25);
+}
+
+/* CURRICULUM */
+#curriculum { background: var(--b900); }
+.sem-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+.sem-block {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--b800);
+  transition: border-color 0.3s, transform 0.3s;
+}
+.sem-block:hover {
+  border-color: rgba(26,108,255,0.4);
+  transform: translateY(-4px);
+}
+.sem-head {
+  padding: 1rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.done .sem-head { background: linear-gradient(90deg, rgba(0,230,118,0.1), transparent); border-bottom: 1px solid rgba(0,230,118,0.2); }
+.current .sem-head { background: linear-gradient(90deg, rgba(26,108,255,0.15), transparent); border-bottom: 1px solid rgba(26,108,255,0.25); }
+.upcoming .sem-head { background: linear-gradient(90deg, rgba(106,138,181,0.08), transparent); border-bottom: 1px solid var(--line); }
+.sem-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--white);
+}
+.sem-chip {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+.done .sem-chip { background: rgba(0,230,118,0.15); color: #00e676; border: 1px solid rgba(0,230,118,0.3); }
+.current .sem-chip { background: rgba(26,108,255,0.15); color: var(--cyan); border: 1px solid rgba(26,108,255,0.3); }
+.upcoming .sem-chip { background: rgba(106,138,181,0.1); color: var(--muted); border: 1px solid var(--line); }
+.sem-mods { padding: 0.8rem 1.4rem; list-style: none; }
+.sem-mods li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(26,108,255,0.05);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.sem-mods li:last-child { border-bottom: none; }
+.mod-id {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 28px;
+}
+.stage-note {
+  margin: 0 1.4rem 1rem;
+  font-size: 0.75rem;
+  color: #f0a500;
+  background: rgba(240,165,0,0.08);
+  border: 1px solid rgba(240,165,0,0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+/* SKILLS */
+#skills { background: var(--b800); }
+.skills-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 4rem;
+  align-items: start;
+}
+.skill-cats { display: flex; flex-direction: column; gap: 1.2rem; }
+.scat {
+  padding: 1.4rem 1.6rem;
+  background: var(--b700);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.scat:hover { border-color: rgba(26,108,255,0.4); transform: translateX(4px); }
+.scat-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem; }
+.scat-icon { font-size: 1.3rem; }
+.scat-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--white);
+}
+.stags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.stag {
+  font-size: 0.7rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 4px;
+  background: rgba(26,108,255,0.12);
+  border: 1px solid rgba(26,108,255,0.2);
+  color: var(--sky);
+  letter-spacing: 0.04em;
+}
+
+.skills-right {}
+.skill-bars { margin-bottom: 3rem; }
+.skill-bars h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.sbar { margin-bottom: 1.4rem; }
+.sbar-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.84rem;
+}
+.sbar-name { color: var(--white); font-weight: 500; }
+.sbar-pct {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+.bar-track {
+  height: 4px;
+  background: rgba(26,108,255,0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.4s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+.bar-fill.on { transform: scaleX(1); }
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s 1.4s;
+}
+.bar-fill.on::after { opacity: 1; }
+
+/* CERTS */
+.certs-section { margin-top: 0; }
+.certs-section h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.cert-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.2rem;
+  background: var(--b700);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.cert-card:hover { border-color: rgba(26,108,255,0.4); transform: translateX(4px); }
+.cert-icon { font-size: 1.6rem; flex-shrink: 0; }
+.cert-body {}
+.cert-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.cert-meta {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.cert-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  background: rgba(0,200,255,0.12);
+  color: var(--cyan);
+  border: 1px solid rgba(0,200,255,0.2);
+  margin-left: 0.5rem;
+}
+
+/* LANGUAGES */
+.lang-grid {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.lang-card {
+  flex: 1;
+  min-width: 100px;
+  background: var(--b700);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  text-align: center;
+}
+.lang-flag { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.lang-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--white);
+  margin-bottom: 0.2rem;
+}
+.lang-level { font-size: 0.7rem; color: var(--cyan); }
+
+/* CAREER */
+#career { background: var(--b900); }
+.career-intro {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 550px;
+  margin-bottom: 3rem;
+  line-height: 1.7;
+}
+.career-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+}
+.career-item {
+  background: var(--b800);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.5rem 1.2rem;
+  transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.career-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26,108,255,0.06), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.career-item:hover {
+  border-color: rgba(26,108,255,0.4);
+  transform: translateY(-5px);
+}
+.career-item:hover::before { opacity: 1; }
+.career-emoji { font-size: 1.8rem; margin-bottom: 0.8rem; }
+.career-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--white);
+  margin-bottom: 0.35rem;
+}
+.career-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+/* CONTACT */
+#contact { background: var(--b800); }
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: start;
+}
+.contact-intro {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+.contact-intro strong { color: var(--sky); font-weight: 500; }
+.contact-link-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.25s;
+  background: var(--b700);
+}
+.contact-link-item:hover {
+  border-color: rgba(26,108,255,0.4);
+  color: var(--white);
+  background: rgba(26,108,255,0.06);
+  transform: translateX(6px);
+}
+.clink-icon { font-size: 1.1rem; min-width: 1.4rem; text-align: center; }
+.clink-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.1rem; font-weight: 600; font-family: 'Syne', sans-serif; }
+.clink-val { font-size: 0.84rem; color: var(--sky); }
+.clink-group {}
+
+/* FORM */
+.contact-form {}
+.fgroup { margin-bottom: 1.2rem; }
+.fgroup label {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 0.5rem;
+}
+.fgroup input, .fgroup textarea {
+  width: 100%;
+  background: var(--b700);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: vertical;
+}
+.fgroup input:focus, .fgroup textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,108,255,0.1);
+}
+.fgroup textarea { min-height: 110px; }
+.submit-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  border: none;
+  border-radius: 8px;
+  color: var(--b900);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.submit-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+/* FOOTER */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2.5rem 6%;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+footer span { color: var(--cyan); }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  #hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 100px; }
+  .hero-right { display: none; }
+  .about-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .sem-grid { grid-template-columns: 1fr; }
+  .skills-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .career-grid { grid-template-columns: repeat(2, 1fr); }
+  .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .nav-links { display: none; }
+  .nav-status { display: none; }
+  section { padding: 70px 5%; }
+}
+@media (max-width: 480px) {
+  .career-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-canvas"></div>
+<div class="glow-orb orb-1"></div>
+<div class="glow-orb orb-2"></div>
+
+<nav>
+  <div class="nav-logo">Ayoub<em>.dev</em></div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#curriculum">Curriculum</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#career">Career</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    Seeking Internship
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">DUT · Réseaux Informatiques & Sécurités</div>
+    <h1 class="hero-name">
+      Ayoub<br>
+      <span class="line2">Ait Bouarib</span>
+    </h1>
+    <p class="hero-title">
+      Étudiant en <strong>Réseaux Informatiques & Cybersécurité</strong> à l'EST Guelmim. Passionné par les systèmes, l'administration réseau et la sécurité informatique.
+    </p>
+    <div class="hero-cta">
+      <a href="#contact" class="btn-solid">Me Contacter</a>
+      <a href="#curriculum" class="btn-ghost">Voir le Programme</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="profile-card">
+      <div class="card-border"></div>
+      <div class="card-inner">
+        <div class="card-avatar">🛡️</div>
+        <div class="card-name">Ayoub Ait Bouarib</div>
+        <div class="card-role">Network & Cybersecurity Student</div>
+        <div class="card-stats">
+          <div class="stat-box">
+            <div class="stat-num">S2</div>
+            <div class="stat-lbl">Current</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">27</div>
+            <div class="stat-lbl">Modules</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">2</div>
+            <div class="stat-lbl">Certs</div>
+          </div>
+        </div>
+        <div class="card-tags">
+          <span class="ctag">Networking</span>
+          <span class="ctag">Linux</span>
+          <span class="ctag">Cybersecurity</span>
+          <span class="ctag">Packet Tracer</span>
+          <span class="ctag">SQL</span>
+          <span class="ctag">Python</span>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-info-row"><span class="icon">📍</span>Agadir, Souss-Massa, Maroc</div>
+        <div class="card-info-row"><span class="icon">🏫</span>EST Guelmim — Université Ibn Zohr</div>
+        <div class="card-info-row"><span class="icon">🔗</span><a href="https://linkedin.com/in/ayoub-networking" target="_blank">ayoub-networking</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="sec-label reveal">
+    <div class="sec-num">01 //</div>
+    <h2 class="sec-title">À Propos</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="about-layout">
+    <div class="about-bio reveal">
+      <p>Étudiant en <strong>DUT Réseaux Informatiques et Sécurité</strong> à l'École Supérieure de Technologie de Guelmim (Université Ibn Zohr). Passionné par les systèmes, l'administration réseau et la cybersécurité.</p>
+      <p>Je développe progressivement mes compétences en <strong>infrastructures digitales</strong>, en programmation et en sécurité informatique, aussi bien dans le cadre de ma formation DUT qu'en auto-apprentissage.</p>
+      <div class="highlight">
+        "Ouvert aux stages, projets et collaborations afin de renforcer mes compétences professionnelles."
+      </div>
+      <p>Actuellement en <strong>Semestre 2</strong>, je cherche activement un <strong>stage d'initiation</strong> pour appliquer mes connaissances académiques dans un environnement professionnel.</p>
+    </div>
+    <div class="reveal">
+      <div class="info-table">
+        <div class="info-row">
+          <div class="info-key">Nom</div>
+          <div class="info-val">Ayoub Ait Bouarib</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">École</div>
+          <div class="info-val">EST Guelmim — Université Ibn Zohr</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Formation</div>
+          <div class="info-val">DUT Réseaux Informatiques & Sécurités</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Année</div>
+          <div class="info-val">1ère Année — Semestre 2 (En cours)</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Localisation</div>
+          <div class="info-val">Agadir, Souss-Massa, Maroc</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Email</div>
+          <div class="info-val muted">votre@email.com</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Téléphone</div>
+          <div class="info-val muted">+212 6XX XXX XXX</div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">LinkedIn</div>
+          <div class="info-val"><a href="https://linkedin.com/in/ayoub-networking" target="_blank">ayoub-networking</a></div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Langues</div>
+          <div class="info-val">
+            <span class="lang-tag">Arabe — Natif</span>
+            <span class="lang-tag">Français</span>
+            <span class="lang-tag">Anglais B2</span>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-key">Statut</div>
+          <div class="info-val" style="color:#00e676;">🟢 Cherche un Stage</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CURRICULUM -->
+<section id="curriculum">
+  <div class="sec-label reveal">
+    <div class="sec-num">02 //</div>
+    <h2 class="sec-title">Programme Académique</h2>
+    <div class="sec-line"></div>
+  </div>
+  <p style="color:var(--muted);margin-bottom:2.5rem;font-size:0.9rem;max-width:600px;" class="reveal">
+    27 modules · 1 350h au total · École Supérieure de Technologie, Guelmim
+  </p>
+  <div class="sem-grid">
+    <div class="sem-block done reveal">
+      <div class="sem-head">
+        <div class="sem-name">Semestre 1</div>
+        <span class="sem-chip">✓ Terminé</span>
+      </div>
+      <ul class="sem-mods">
+        <li><span class="mod-id">M01</span>Algèbre linéaire & Analyse Mathématiques</li>
+        <li><span class="mod-id">M02</span>Probabilités et Statistiques</li>
+        <li><span class="mod-id">M03</span>Circuit logique & Architecture des Ordinateurs</li>
+        <li><span class="mod-id">M04</span>Réseaux Informatiques</li>
+        <li><span class="mod-id">M05</span>Algorithme et Programmation</li>
+        <li><span class="mod-id">M06</span>Langues Étrangères 1 (Anglais / Français)</li>
+        <li><span class="mod-id">M07</span>Digital Skills</li>
+      </ul>
+    </div>
+    <div class="sem-block current reveal">
+      <div class="sem-head">
+        <div class="sem-name">Semestre 2</div>
+        <span class="sem-chip">⚡ En cours</span>
+      </div>
+      <ul class="sem-mods">
+        <li><span class="mod-id">M08</span>Système d'Exploitation Linux</li>
+        <li><span class="mod-id">M09</span>Développement d'Application Web</li>
+        <li><span class="mod-id">M10</span>Introduction à la Sécurité Informatique & Cryptographie</li>
+        <li><span class="mod-id">M11</span>Conception et création des Bases de Données SQL</li>
+        <li><span class="mod-id">M12</span>Structure de Données</li>
+        <li><span class="mod-id">M13</span>Langues Étrangères 2 (Anglais / Français)</li>
+        <li><span class="mod-id">M14</span>Intelligence Artificielle</li>
+      </ul>
+      <div class="stage-note">🗓 Stage d'initiation — 1 Mois (à venir)</div>
+    </div>
+    <div class="sem-block upcoming reveal">
+      <div class="sem-head">
+        <div class="sem-name">Semestre 3</div>
+        <span class="sem-chip">À venir</span>
+      </div>
+      <ul class="sem-mods">
+        <li><span class="mod-id">M15</span>Sécurité des Applications Web</li>
+        <li><span class="mod-id">M16</span>POO avec Java & Conception UML</li>
+        <li><span class="mod-id">M17</span>Interconnexion de Réseaux</li>
+        <li><span class="mod-id">M18</span>Administration des Systèmes Informatiques</li>
+        <li><span class="mod-id">M19</span>Architecture Client / Serveur</li>
+        <li><span class="mod-id">M20</span>Programmation en Python</li>
+        <li><span class="mod-id">M21</span>Base de Données NoSQL</li>
+      </ul>
+    </div>
+    <div class="sem-block upcoming reveal">
+      <div class="sem-head">
+        <div class="sem-name">Semestre 4</div>
+        <span class="sem-chip">À venir</span>
+      </div>
+      <ul class="sem-mods">
+        <li><span class="mod-id">M22</span>Virtualisation & Cloud Computing</li>
+        <li><span class="mod-id">M23</span>Sécurité Avancée des Réseaux</li>
+        <li><span class="mod-id">M24</span>Réseaux Mobiles</li>
+        <li><span class="mod-id">M25</span>Big Data et IoT</li>
+        <li><span class="mod-id">M26</span>PFE — Projet de Fin d'Études</li>
+      </ul>
+      <div class="stage-note">🎓 Stage de Fin d'Études (SFE) — 2 Mois</div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<div class="skill-cats reveal">
+
+<div class="scat">
+<div class="scat-head"><div class="scat-icon">🌐</div><div class="scat-name">Réseaux Informatiques</div></div>
+<div class="stags">
+<span class="stag">TCP/IP</span>
+<span class="stag">Adressage IP</span>
+<span class="stag">Modèle OSI</span>
+<span class="stag">Configuration Switch</span>
+<span class="stag">Packet Tracer</span>
+<span class="stag">Réseaux LAN</span>
+</div>
+</div>
+
+<div class="scat">
+<div class="scat-head"><div class="scat-icon">🐧</div><div class="scat-name">Systèmes Linux</div></div>
+<div class="stags">
+<span class="stag">Linux CLI</span>
+<span class="stag">Gestion utilisateurs</span>
+<span class="stag">Permissions</span>
+<span class="stag">Processus</span>
+<span class="stag">Installation OS</span>
+<span class="stag">Administration basique</span>
+</div>
+</div>
+
+<div class="scat">
+<div class="scat-head"><div class="scat-icon">💻</div><div class="scat-name">Programmation</div></div>
+<div class="stags">
+<span class="stag">Algorithmes</span>
+<span class="stag">Langage C</span>
+<span class="stag">Structures de Données</span>
+<span class="stag">Python (bases)</span>
+<span class="stag">HTML/CSS</span>
+</div>
+</div>
+
+<div class="scat">
+<div class="scat-head"><div class="scat-icon">🗄️</div><div class="scat-name">Bases de Données</div></div>
+<div class="stags">
+<span class="stag">SQL</span>
+<span class="stag">Modèle Relationnel</span>
+<span class="stag">Conception BD</span>
+<span class="stag">Requêtes SELECT</span>
+</div>
+</div>
+
+<div class="scat">
+<div class="scat-head"><div class="scat-icon">🔐</div><div class="scat-name">Sécurité Informatique</div></div>
+<div class="stags">
+<span class="stag">Bases Cybersécurité</span>
+<span class="stag">Cryptographie (intro)</span>
+<span class="stag">Bonnes pratiques sécurité</span>
+<span class="stag">Analyse de risques (bases)</span>
+</div>
+</div>
+
+</div>
+      <div class="certs-section">
+        <h3>Certifications</h3>
+        <div class="cert-card">
+          <div class="cert-icon">🌍</div>
+          <div class="cert-body">
+            <div class="cert-name">EF SET English Certificate <span class="cert-badge">B2 Upper Intermediate</span></div>
+            <div class="cert-meta">EF Standard English Test · Score : 51/100</div>
+          </div>
+        </div>
+        <div class="cert-card">
+          <div class="cert-icon">🏅</div>
+          <div class="cert-body">
+            <div class="cert-name">Introduction to Cybersecurity Awareness</div>
+            <div class="cert-meta">HP LIFE · Décembre 2025 · ID: 74fb5372-ce36</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;margin-top:2rem;">Langues</h3>
+        <div class="lang-grid">
+          <div class="lang-card">
+            <div class="lang-flag">🇲🇦</div>
+            <div class="lang-name">Arabe</div>
+            <div class="lang-level">Langue Natale</div>
+          </div>
+          <div class="lang-card">
+            <div class="lang-flag">🇫🇷</div>
+            <div class="lang-name">Français</div>
+            <div class="lang-level">Courant</div>
+          </div>
+          <div class="lang-card">
+            <div class="lang-flag">🇬🇧</div>
+            <div class="lang-name">Anglais</div>
+            <div class="lang-level">B2 · 51/100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAREER -->
+<section id="career">
+  <div class="sec-label reveal">
+    <div class="sec-num">04 //</div>
+    <h2 class="sec-title">Débouchés Professionnels</h2>
+    <div class="sec-line"></div>
+  </div>
+  <p class="career-intro reveal">Le DUT RIS ouvre les portes à des métiers très demandés dans l'infrastructure IT et la cybersécurité.</p>
+  <div class="career-grid reveal">
+    <div class="career-item">
+      <div class="career-emoji">🔧</div>
+      <div class="career-title">Administrateur Réseau</div>
+      <div class="career-desc">Gérer et maintenir l'infrastructure réseau d'entreprise</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">🛡️</div>
+      <div class="career-title">Analyste SOC</div>
+      <div class="career-desc">Surveiller les menaces et répondre aux incidents de sécurité</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">🔍</div>
+      <div class="career-title">Consultant Sécurité</div>
+      <div class="career-desc">Auditer les systèmes et conseiller sur les meilleures pratiques</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">🌐</div>
+      <div class="career-title">Ingénieur Réseaux</div>
+      <div class="career-desc">Concevoir et optimiser les architectures réseau d'entreprise</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">☁️</div>
+      <div class="career-title">Cloud & Virtualisation</div>
+      <div class="career-desc">Déployer et gérer les environnements cloud et virtuels</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">🔒</div>
+      <div class="career-title">RSSI</div>
+      <div class="career-desc">Diriger la stratégie de sécurité de l'information</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">📊</div>
+      <div class="career-title">Chef de Projet IT</div>
+      <div class="career-desc">Coordonner les projets techniques dans les DSI</div>
+    </div>
+    <div class="career-item">
+      <div class="career-emoji">🎓</div>
+      <div class="career-title">Études Supérieures</div>
+      <div class="career-desc">Licence professionnelle ou école d'ingénieurs</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-label reveal">
+    <div class="sec-num">05 //</div>
+    <h2 class="sec-title">Contact</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="contact-layout">
+    <div class="reveal">
+      <p class="contact-intro">
+        Actuellement en <strong>Semestre 2</strong> du DUT RIS à l'EST Guelmim, je cherche activement un <strong>stage d'initiation</strong>. N'hésitez pas à me contacter pour toute proposition, collaboration ou opportunité.
+      </p>
+      <div class="clink-group">
+        <a href="mailto:votre@email.com" class="contact-link-item">
+          <span class="clink-icon">✉️</span>
+          <div>
+            <div class="clink-label">Email</div>
+            <div class="clink-val">official.bouarib@gmail.com</div>
+          </div>
+        </a>
+        <a href="https://linkedin.com/in/ayoub-networking" target="_blank" class="contact-link-item">
+          <span class="clink-icon">🔗</span>
+          <div>
+            <div class="clink-label">LinkedIn</div>
+            <div class="clink-val">linkedin.com/in/ayoub-networking</div>
+          </div>
+        </a>
+        <a href="tel:+2126XXXXXXXX" class="contact-link-item">
+          <span class="clink-icon">📞</span>
+          <div>
+            <div class="clink-label">Téléphone</div>
+            <div class="clink-val">+212 606946430</div>
+          </div>
+        </a>
+        <a href="#" class="contact-link-item">
+          <span class="clink-icon">🐙</span>
+          <div>
+            <div class="clink-label">GitHub</div>
+            <div class="clink-val">github.com/ayoub</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form reveal">
+      <div class="fgroup">
+        <label>Votre Nom</label>
+        <input type="text" placeholder="Nom complet"/>
+      </div>
+      <div class="fgroup">
+        <label>Email</label>
+        <input type="email" placeholder="email@example.com"/>
+      </div>
+      <div class="fgroup">
+        <label>Message</label>
+        <textarea placeholder="Proposition de stage, collaboration, ou juste un bonjour..."></textarea>
+      </div>
+      <button class="submit-btn">Envoyer le Message</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Ayoub Ait Bouarib · DUT Réseaux Informatiques & Sécurités · <span>EST Guelmim</span> · Université Ibn Zohr · <span>2025 – 2026</span></p>
+</footer>
+
+<script>
+// CUSTOM CURSOR
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx + 'px'; cursor.style.top = my + 'px'; });
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a, button, .career-item, .scat, .sem-block, .cert-card').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width='20px'; cursor.style.height='20px'; ring.style.width='60px'; ring.style.height='60px'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; ring.style.width='40px'; ring.style.height='40px'; });
+});
+
+// SCROLL REVEAL
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => {
+        e.target.classList.add('visible');
+        e.target.querySelectorAll('.bar-fill').forEach(b => {
+          b.style.transform = `scaleX(${b.dataset.w})`;
+          b.classList.add('on');
+        });
+      }, i * 100);
+    }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(el => obs.observe(el));
+
+// NAV ACTIVE
+const secs = document.querySelectorAll('section[id]');
+const navA = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  secs.forEach(s => { if (window.scrollY >= s.offsetTop - 100) cur = s.id; });
+  navA.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--cyan)' : '';
+  });
+});
+</script>
+</body>
+</html>
