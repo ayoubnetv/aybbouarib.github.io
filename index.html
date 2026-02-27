@@ -1,892 +1,604 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Portfolio professionnel de Ayoub Ait Bouarib - Étudiant en DUT Réseaux Informatiques & Cybersécurité à l'EST Guelmim"/>
-<meta name="keywords" content="networking, cybersecurity, DUT, réseaux informatiques, cybersécurité, portfolio"/>
-<meta name="author" content="Ayoub Ait Bouarib"/>
-<meta property="og:title" content="Ayoub Ait Bouarib — Network & Cybersecurity"/>
-<meta property="og:description" content="Portfolio professionnel - DUT Réseaux Informatiques & Cybersécurité"/>
-<meta property="og:type" content="website"/>
-<title>Ayoub Ait Bouarib — Network & Cybersecurity</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-:root {
-  --b900: #020b18;
-  --b800: #051428;
-  --b700: #071e3d;
-  --b600: #0a2a57;
-  --b500: #0d3875;
-  --blue: #1a6cff;
-  --cyan: #00c8ff;
-  --sky:  #5eb8ff;
-  --white: #f0f6ff;
-  --muted: #6a8ab5;
-  --line: rgba(30,120,255,0.15);
+import { useState, useEffect, useRef } from "react";
+
+/* ─── PALETTE ─────────────────────────────────────────────────── */
+const C = {
+  bg:      "#111317",
+  surface: "#181b21",
+  card:    "#1e2128",
+  border:  "#2a2e38",
+  borderB: "rgba(59,130,246,0.25)",
+  blue:    "#3b82f6",
+  sky:     "#7cb9ff",
+  muted:   "#6b7280",
+  dim:     "#9ca3af",
+  light:   "#e5e9f0",
+  white:   "#f8fafc",
+};
+
+/* ─── HOOKS ────────────────────────────────────────────────────── */
+function useInView(threshold = 0.08) {
+  const ref = useRef(null);
+  const [vis, setVis] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, vis];
 }
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; font-size:16px; }
-
-body {
-  background: var(--b900);
-  color: var(--white);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 300;
-  overflow-x: hidden;
-  cursor: none;
+function useBreakpoint() {
+  const [w, setW] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  useEffect(() => {
+    const h = () => setW(window.innerWidth);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return { isMobile: w < 768, isTablet: w < 1024, w };
 }
 
-/* CUSTOM CURSOR */
-.cursor {
-  position: fixed;
-  width: 12px; height: 12px;
-  background: var(--cyan);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
-  mix-blend-mode: screen;
-}
-.cursor-ring {
-  position: fixed;
-  width: 40px; height: 40px;
-  border: 1px solid rgba(0,200,255,0.4);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%,-50%);
-  transition: transform 0.18s ease, width 0.3s, height 0.3s;
-}
-body:hover .cursor { opacity:1; }
-
-/* ANIMATED BACKGROUND GRID */
-.grid-canvas {
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: 0;
-  animation: gridPan 40s linear infinite;
-}
-@keyframes gridPan { from{background-position:0 0} to{background-position:60px 60px} }
-
-.glow-orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(120px);
-  pointer-events: none;
-  z-index: 0;
-}
-.orb-1 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(26,108,255,0.18), transparent 70%);
-  top: -100px; left: -100px;
-  animation: orbFloat1 12s ease-in-out infinite;
-}
-.orb-2 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, rgba(0,200,255,0.12), transparent 70%);
-  bottom: 0; right: -80px;
-  animation: orbFloat2 15s ease-in-out infinite;
-}
-@keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,40px)} }
-@keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,-60px)} }
-
-/* NAV */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 6%;
-  height: 70px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(2,11,24,0.85);
-  backdrop-filter: blur(20px);
-}
-.nav-logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.02em;
-  color: var(--white);
-}
-.nav-logo em { color: var(--cyan); font-style: normal; }
-.nav-links { display: flex; gap: 2.5rem; list-style: none; }
-.nav-links a {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
-  font-weight: 500;
-}
-.nav-links a:hover { color: var(--cyan); }
-.nav-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
-  color: var(--muted);
-  letter-spacing: 0.06em;
-}
-.status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #00e676;
-  box-shadow: 0 0 8px #00e676;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-/* HERO */
-#hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  padding: 100px 6% 60px;
-  position: relative;
-  z-index: 1;
-  gap: 4rem;
-}
-.hero-left { position: relative; }
-.hero-eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  opacity: 0;
-  animation: slideIn 0.7s ease 0.1s forwards;
-}
-.hero-eyebrow::before {
-  content: '';
-  display: inline-block;
-  width: 30px; height: 1px;
-  background: var(--cyan);
-}
-.hero-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: clamp(3rem, 6vw, 5.5rem);
-  line-height: 1.0;
-  letter-spacing: -0.03em;
-  color: var(--white);
-  opacity: 0;
-  animation: slideIn 0.7s ease 0.25s forwards;
-}
-.hero-name .line2 {
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--blue);
-}
-.hero-title {
-  margin-top: 1.2rem;
-  font-size: 1rem;
-  color: var(--muted);
-  font-weight: 400;
-  max-width: 420px;
-  line-height: 1.7;
-  opacity: 0;
-  animation: slideIn 0.7s ease 0.4s forwards;
-}
-.hero-title strong { color: var(--sky); font-weight: 500; }
-
-.hero-cta {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2.5rem;
-  flex-wrap: wrap;
-  opacity: 0;
-  animation: slideIn 0.7s ease 0.55s forwards;
-}
-.btn-solid {
-  padding: 0.8rem 2rem;
-  background: var(--blue);
-  color: #fff;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-decoration: none;
-  border-radius: 3px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.25s, transform 0.25s, box-shadow 0.25s;
-}
-.btn-solid:hover {
-  background: var(--cyan);
-  color: var(--b900);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0,200,255,0.3);
-}
-.btn-ghost {
-  padding: 0.8rem 2rem;
-  background: transparent;
-  color: var(--sky);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-decoration: none;
-  border-radius: 3px;
-  border: 1px solid rgba(94,184,255,0.3);
-  cursor: pointer;
-  transition: all 0.25s;
-}
-.btn-ghost:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  background: rgba(0,200,255,0.06);
-  transform: translateY(-3px);
+function useCursor() {
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [ring, setRing] = useState({ x: -100, y: -100 });
+  const [hov, setHov] = useState(false);
+  const [touch, setTouch] = useState(false);
+  useEffect(() => {
+    if ("ontouchstart" in window) { setTouch(true); return; }
+    let rx = -100, ry = -100, mx = -100, my = -100, raf;
+    const move = e => { mx = e.clientX; my = e.clientY; setPos({ x: mx, y: my }); };
+    const tick = () => { rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1; setRing({ x: rx, y: ry }); raf = requestAnimationFrame(tick); };
+    window.addEventListener("mousemove", move);
+    raf = requestAnimationFrame(tick);
+    return () => { window.removeEventListener("mousemove", move); cancelAnimationFrame(raf); };
+  }, []);
+  return { pos, ring, hov, setHov, touch };
 }
 
-/* HERO RIGHT - PROFILE CARD */
-.hero-right {
-  display: flex;
-  justify-content: center;
-  opacity: 0;
-  animation: slideInRight 0.9s ease 0.3s forwards;
-}
-@keyframes slideInRight { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:none} }
-
-.profile-card {
-  position: relative;
-  width: 320px;
-}
-.card-border {
-  position: absolute;
-  inset: -1px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--blue), var(--cyan), var(--b600));
-  padding: 1px;
-  z-index: 0;
-}
-.card-inner {
-  position: relative;
-  background: var(--b800);
-  border-radius: 15px;
-  padding: 2rem;
-  z-index: 1;
-  overflow: hidden;
-}
-.card-inner::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 180px; height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(26,108,255,0.25), transparent 70%);
-}
-.card-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--b600), var(--blue));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  border: 2px solid rgba(0,200,255,0.3);
-  aria-hidden: true;
-}
-.card-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--white);
-  margin-bottom: 0.2rem;
-}
-.card-role {
-  font-size: 0.78rem;
-  color: var(--cyan);
-  letter-spacing: 0.06em;
-  margin-bottom: 1.5rem;
-}
-.card-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-.stat-box {
-  background: rgba(26,108,255,0.1);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.6rem 0.5rem;
-  text-align: center;
-}
-.stat-num {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--cyan);
-}
-.stat-lbl {
-  font-size: 0.62rem;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-top: 0.15rem;
-}
-.card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-.ctag {
-  font-size: 0.68rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 20px;
-  background: rgba(26,108,255,0.15);
-  border: 1px solid rgba(26,108,255,0.3);
-  color: var(--sky);
-  letter-spacing: 0.04em;
-}
-.card-divider {
-  height: 1px;
-  background: var(--line);
-  margin: 1.2rem 0;
-}
-.card-info-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-.card-info-row .icon { font-size: 0.85rem; opacity: 0.8; }
-.card-info-row a { color: var(--sky); text-decoration: none; }
-.card-info-row a:hover { color: var(--cyan); }
-
-@keyframes slideIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
-
-/* SECTION BASE */
-section { padding: 100px 6%; position: relative; z-index: 1; }
-.sec-label {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 3.5rem;
-}
-.sec-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--blue);
-  text-transform: uppercase;
-}
-.sec-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--white);
-}
-.sec-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(26,108,255,0.4), transparent);
+/* ─── PRIMITIVES ───────────────────────────────────────────────── */
+function FadeIn({ children, delay = 0, style = {} }) {
+  const [ref, vis] = useInView();
+  return (
+    <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`, ...style }}>
+      {children}
+    </div>
+  );
 }
 
-/* REVEAL */
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal.visible { opacity:1; transform:none; }
-
-/* ABOUT */
-#about { background: var(--b800); }
-.about-layout {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 5rem;
-  align-items: start;
-}
-.about-bio {
-  font-size: 1rem;
-  color: var(--muted);
-  line-height: 1.85;
-}
-.about-bio p { margin-bottom: 1.2rem; }
-.about-bio strong { color: var(--sky); font-weight: 500; }
-.about-bio .highlight {
-  border-left: 2px solid var(--cyan);
-  padding-left: 1.2rem;
-  margin: 1.5rem 0;
-  color: var(--white);
-  font-size: 0.95rem;
-  font-style: italic;
-}
-.info-table { width: 100%; }
-.info-row {
-  display: flex;
-  align-items: flex-start;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid var(--line);
-  gap: 1rem;
-}
-.info-key {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--blue);
-  min-width: 100px;
-  padding-top: 0.05rem;
-}
-.info-val {
-  font-size: 0.88rem;
-  color: var(--white);
-  line-height: 1.5;
-}
-.info-val.muted { color: var(--muted); }
-.info-val a { color: var(--sky); text-decoration: none; }
-.info-val a:hover { color: var(--cyan); }
-.lang-tag {
-  display: inline-block;
-  font-size: 0.68rem;
-  padding: 0.15rem 0.5rem;
-  margin-right: 0.3rem;
-  border-radius: 3px;
-  background: rgba(26,108,255,0.15);
-  color: var(--sky);
-  border: 1px solid rgba(26,108,255,0.25);
+function Bar({ label, pct, delay = 0 }) {
+  const [ref, vis] = useInView();
+  return (
+    <div ref={ref} style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <span style={{ fontSize: 13, color: C.light, fontFamily: "Manrope" }}>{label}</span>
+        <span style={{ fontSize: 11, color: C.blue, fontFamily: "JetBrains Mono", fontWeight: 500 }}>{pct}%</span>
+      </div>
+      <div style={{ height: 3, background: "rgba(59,130,246,0.1)", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ height: "100%", borderRadius: 3, background: `linear-gradient(90deg,${C.blue},${C.sky})`, width: vis ? `${pct}%` : "0%", transition: `width 1.4s cubic-bezier(.16,1,.3,1) ${delay}s` }} />
+      </div>
+    </div>
+  );
 }
 
-/* CURRICULUM */
-#curriculum { background: var(--b900); }
-.sem-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-.sem-block {
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--b800);
-  transition: border-color 0.3s, transform 0.3s;
-}
-.sem-block:hover {
-  border-color: rgba(26,108,255,0.4);
-  transform: translateY(-4px);
-}
-.sem-head {
-  padding: 1rem 1.4rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.done .sem-head { background: linear-gradient(90deg, rgba(0,230,118,0.1), transparent); border-bottom: 1px solid rgba(0,230,118,0.2); }
-.current .sem-head { background: linear-gradient(90deg, rgba(26,108,255,0.15), transparent); border-bottom: 1px solid rgba(26,108,255,0.25); }
-.upcoming .sem-head { background: linear-gradient(90deg, rgba(106,138,181,0.08), transparent); border-bottom: 1px solid var(--line); }
-.sem-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--white);
-}
-.sem-chip {
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-}
-.done .sem-chip { background: rgba(0,230,118,0.15); color: #00e676; border: 1px solid rgba(0,230,118,0.3); }
-.current .sem-chip { background: rgba(26,108,255,0.15); color: var(--cyan); border: 1px solid rgba(26,108,255,0.3); }
-.upcoming .sem-chip { background: rgba(106,138,181,0.1); color: var(--muted); border: 1px solid var(--line); }
-.sem-mods { padding: 0.8rem 1.4rem; list-style: none; }
-.sem-mods li {
-  display: flex;
-  gap: 0.75rem;
-  align-items: baseline;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(26,108,255,0.05);
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.sem-mods li:last-child { border-bottom: none; }
-.mod-id {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--blue);
-  min-width: 28px;
-}
-.stage-note {
-  margin: 0 1.4rem 1rem;
-  font-size: 0.75rem;
-  color: #f0a500;
-  background: rgba(240,165,0,0.08);
-  border: 1px solid rgba(240,165,0,0.2);
-  border-radius: 6px;
-  padding: 0.5rem 0.9rem;
-  letter-spacing: 0.04em;
+function Tag({ children }) {
+  const [h, setH] = useState(false);
+  return (
+    <span onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ fontSize: 11, padding: "4px 9px", borderRadius: 4, display: "inline-block", margin: "3px 3px 3px 0", fontFamily: "JetBrains Mono", transition: "all .2s", background: h ? "rgba(59,130,246,0.18)" : "rgba(59,130,246,0.08)", border: `1px solid ${h ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.18)"}`, color: h ? C.sky : C.dim }}>
+      {children}
+    </span>
+  );
 }
 
-/* SKILLS */
-#skills { background: var(--b800); }
-.skills-layout {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 4rem;
-  align-items: start;
-}
-.skill-cats { display: flex; flex-direction: column; gap: 1.2rem; }
-.scat {
-  padding: 1.4rem 1.6rem;
-  background: var(--b700);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  transition: border-color 0.25s, transform 0.25s;
-}
-.scat:hover { border-color: rgba(26,108,255,0.4); transform: translateX(4px); }
-.scat-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.9rem; }
-.scat-icon { font-size: 1.3rem; }
-.scat-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--white);
-}
-.stags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.stag {
-  font-size: 0.7rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: 4px;
-  background: rgba(26,108,255,0.12);
-  border: 1px solid rgba(26,108,255,0.2);
-  color: var(--sky);
-  letter-spacing: 0.04em;
+function MonoLabel({ children }) {
+  return <p style={{ fontFamily: "JetBrains Mono", fontSize: 10, color: C.blue, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 16, opacity: .7 }}>{children}</p>;
 }
 
-.skills-right {}
-.skill-bars { margin-bottom: 3rem; }
-.skill-bars h3 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1.5rem;
-}
-.sbar { margin-bottom: 1.4rem; }
-.sbar-top {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.84rem;
-}
-.sbar-name { color: var(--white); font-weight: 500; }
-.sbar-pct {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--cyan);
-}
-.bar-track {
-  height: 4px;
-  background: rgba(26,108,255,0.12);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--blue), var(--cyan));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 1.4s cubic-bezier(0.16,1,0.3,1);
-  position: relative;
-}
-.bar-fill.on { transform: scaleX(1); }
-.bar-fill::after {
-  content: '';
-  position: absolute;
-  right: 0; top: 0; bottom: 0;
-  width: 6px;
-  background: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s 1.4s;
-}
-.bar-fill.on::after { opacity: 1; }
-
-/* CERTS */
-.certs-section { margin-top: 0; }
-.certs-section h3 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1rem;
-}
-.cert-card {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  padding: 1rem 1.2rem;
-  background: var(--b700);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  margin-bottom: 0.75rem;
-  transition: border-color 0.25s, transform 0.25s;
-}
-.cert-card:hover { border-color: rgba(26,108,255,0.4); transform: translateX(4px); }
-.cert-icon { font-size: 1.6rem; flex-shrink: 0; }
-.cert-body {}
-.cert-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--white);
-  margin-bottom: 0.2rem;
-}
-.cert-meta {
-  font-size: 0.72rem;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-}
-.cert-badge {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  background: rgba(0,200,255,0.12);
-  color: var(--cyan);
-  border: 1px solid rgba(0,200,255,0.2);
-  margin-left: 0.5rem;
+function SectionLabel({ num, title }) {
+  const { isMobile } = useBreakpoint();
+  return (
+    <FadeIn style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 40 }}>
+      <span style={{ fontFamily: "JetBrains Mono", fontSize: 10, color: C.blue, letterSpacing: "0.2em", textTransform: "uppercase", whiteSpace: "nowrap" }}>{num} //</span>
+      <h2 style={{ fontFamily: "Bebas Neue", fontSize: isMobile ? "1.9rem" : "clamp(2rem,4vw,3rem)", color: C.white, letterSpacing: "0.04em", margin: 0, whiteSpace: "nowrap" }}>{title}</h2>
+      <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(59,130,246,0.3),transparent)", minWidth: 20 }} />
+    </FadeIn>
+  );
 }
 
-/* LANGUAGES */
-.lang-grid {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
+function Card({ children, style = {}, onHover }) {
+  const [h, setH] = useState(false);
+  return (
+    <div onMouseEnter={() => { setH(true); onHover?.(true); }} onMouseLeave={() => { setH(false); onHover?.(false); }}
+      style={{ background: C.card, border: `1px solid ${h ? C.borderB : C.border}`, borderRadius: 12, padding: 22, transform: h ? "translateY(-3px)" : "translateY(0)", boxShadow: h ? "0 14px 36px rgba(0,0,0,0.4)" : "none", transition: "all .3s", ...style }}>
+      {children}
+    </div>
+  );
 }
-.lang-card {
-  flex: 1;
-  min-width: 100px;
-  background: var(--b700);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1rem 1.2rem;
-  text-align: center;
-}
-.lang-flag { font-size: 1.8rem; margin-bottom: 0.5rem; }
-.lang-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--white);
-  margin-bottom: 0.2rem;
-}
-.lang-level { font-size: 0.7rem; color: var(--cyan); }
 
-/* CAREER */
-#career { background: var(--b900); }
-.career-intro {
-  font-size: 0.95rem;
-  color: var(--muted);
-  max-width: 550px;
-  margin-bottom: 3rem;
-  line-height: 1.7;
-}
-.career-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.2rem;
-}
-.career-item {
-  background: var(--b800);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1.5rem 1.2rem;
-  transition: border-color 0.25s, transform 0.25s, background 0.25s;
-  position: relative;
-  overflow: hidden;
-}
-.career-item::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(26,108,255,0.06), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.career-item:hover {
-  border-color: rgba(26,108,255,0.4);
-  transform: translateY(-5px);
-}
-.career-item:hover::before { opacity: 1; }
-.career-emoji { font-size: 1.8rem; margin-bottom: 0.8rem; }
-.career-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--white);
-  margin-bottom: 0.35rem;
-}
-.career-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+/* ─── DATA ─────────────────────────────────────────────────────── */
+const semData = [
+  { label: "Semestre 1", chip: "✓ Terminé", chipCol: "#22c55e", chipBg: "rgba(34,197,94,0.1)", chipBd: "rgba(34,197,94,0.25)", hBg: "linear-gradient(90deg,rgba(34,197,94,0.08),transparent)", hBd: "rgba(34,197,94,0.15)", modules: ["M01 — Algèbre linéaire & Analyse","M02 — Probabilités et Statistiques","M03 — Circuit logique & Architecture","M04 — Réseaux Informatiques","M05 — Algorithme et Programmation","M06 — Langues Étrangères 1","M07 — Digital Skills"] },
+  { label: "Semestre 2", chip: "⚡ En cours", chipCol: C.sky, chipBg: "rgba(59,130,246,0.1)", chipBd: "rgba(59,130,246,0.25)", hBg: "linear-gradient(90deg,rgba(59,130,246,0.1),transparent)", hBd: "rgba(59,130,246,0.2)", modules: ["M08 — Système d'Exploitation Linux","M09 — Développement d'Application Web","M10 — Sécurité Informatique & Cryptographie","M11 — Bases de Données SQL","M12 — Structure de Données","M13 — Langues Étrangères 2","M14 — Intelligence Artificielle"], note: "🗓 Stage d'initiation — 1 Mois (à venir)" },
+  { label: "Semestre 3", chip: "À venir", chipCol: C.muted, chipBg: "rgba(107,114,128,0.1)", chipBd: "rgba(107,114,128,0.2)", hBg: "linear-gradient(90deg,rgba(107,114,128,0.07),transparent)", hBd: C.border, modules: ["M15 — Sécurité des Applications Web","M16 — POO Java & UML","M17 — Interconnexion de Réseaux","M18 — Administration des Systèmes","M19 — Architecture Client/Serveur","M20 — Programmation Python","M21 — Base de Données NoSQL"] },
+  { label: "Semestre 4", chip: "À venir", chipCol: C.muted, chipBg: "rgba(107,114,128,0.1)", chipBd: "rgba(107,114,128,0.2)", hBg: "linear-gradient(90deg,rgba(107,114,128,0.07),transparent)", hBd: C.border, modules: ["M22 — Virtualisation & Cloud Computing","M23 — Sécurité Avancée des Réseaux","M24 — Réseaux Mobiles","M25 — Big Data et IoT","M26 — PFE — Projet de Fin d'Études"], note: "🎓 Stage de Fin d'Études (SFE) — 2 Mois" },
+];
 
-/* CONTACT */
-#contact { background: var(--b800); }
-.contact-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5rem;
-  align-items: start;
-}
-.contact-intro {
-  font-size: 0.95rem;
-  color: var(--muted);
-  line-height: 1.8;
-  margin-bottom: 2rem;
-}
-.contact-intro strong { color: var(--sky); font-weight: 500; }
-.contact-link-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 1.2rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--muted);
-  font-size: 0.88rem;
-  margin-bottom: 0.75rem;
-  transition: all 0.25s;
-  background: var(--b700);
-}
-.contact-link-item:hover {
-  border-color: rgba(26,108,255,0.4);
-  color: var(--white);
-  background: rgba(26,108,255,0.06);
-  transform: translateX(6px);
-}
-.clink-icon { font-size: 1.1rem; min-width: 1.4rem; text-align: center; }
-.clink-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.1rem; font-weight: 600; font-family: 'Syne', sans-serif; }
-.clink-val { font-size: 0.84rem; color: var(--sky); }
-.clink-group {}
+const skillsData = [
+  { icon: "🌐", title: "Réseaux Informatiques", sem: "S1·M04", tags: ["TCP/IP","Packet Tracer","Architecture réseau","Circuit logique"] },
+  { icon: "💻", title: "Algorithme & Prog.", sem: "S1·M05", tags: ["Algorithmique","Programmation","Logique"] },
+  { icon: "🖥️", title: "Systèmes Linux", sem: "S2·M08", tags: ["Linux/Ubuntu","Bash/Shell","Permissions","Processus"] },
+  { icon: "🌍", title: "Développement Web", sem: "S2·M09", tags: ["HTML5","CSS3","JavaScript","VS Code"] },
+  { icon: "🔐", title: "Sécurité & Crypto", sem: "S2·M10", tags: ["Cryptographie","Cybersécurité","Pare-feu","Menaces"] },
+  { icon: "🗄️", title: "Bases de Données", sem: "S2·M11", tags: ["SQL","MCD/MLD","MySQL","Requêtes"] },
+];
 
-/* FORM */
-.contact-form {}
-.fgroup { margin-bottom: 1.2rem; }
-.fgroup label {
-  display: block;
-  font-family: 'Syne', sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--blue);
-  margin-bottom: 0.5rem;
-}
-.fgroup input, .fgroup textarea {
-  width: 100%;
-  background: var(--b700);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 0.85rem 1rem;
-  color: var(--white);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  resize: vertical;
-}
-.fgroup input:focus, .fgroup textarea:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(26,108,255,0.1);
-}
-.fgroup input:invalid:not(:placeholder-shown),
-.fgroup textarea:invalid:not(:placeholder-shown) {
-  border-color: #ff6b6b;
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
-}
-.fgroup textarea { min-height: 110px; }
-.submit-btn {
-  width: 100%;
-  padding: 0.9rem;
-  background: linear-gradient(90deg, var(--blue), var(--cyan));
-  border: none;
-  border-radius: 8px;
-  color: var(--b900);
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.2s;
-}
-.submit-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+const barsData = [
+  { label: "Réseaux Informatiques", pct: 78, delay: 0 },
+  { label: "Linux & Systèmes", pct: 70, delay: .1 },
+  { label: "HTML / CSS / Web", pct: 75, delay: .2 },
+  { label: "SQL & Bases de Données", pct: 68, delay: .3 },
+  { label: "Sécurité & Cryptographie", pct: 62, delay: .4 },
+  { label: "Algorithme & Prog.", pct: 65, delay: .5 },
+];
 
-/* FOOTER */
-footer {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 2.5rem 6%;
-  border-top: 1px solid var(--line);
-  font-size: 0.78rem;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-}
-footer span { color: var(--cyan); }
+const careers = [
+  { icon: "🔧", title: "Administrateur Réseau", desc: "Gérer l'infra réseau d'entreprise" },
+  { icon: "🛡️", title: "Analyste SOC", desc: "Surveiller les incidents de sécurité" },
+  { icon: "🔍", title: "Consultant Sécurité", desc: "Auditer et conseiller sur les pratiques" },
+  { icon: "🌐", title: "Ingénieur Réseaux", desc: "Concevoir les architectures réseau" },
+  { icon: "☁️", title: "Cloud & Virtualisation", desc: "Déployer des environnements cloud" },
+  { icon: "🔒", title: "RSSI", desc: "Diriger la stratégie de sécurité" },
+  { icon: "📊", title: "Chef de Projet IT", desc: "Coordonner les projets en DSI" },
+  { icon: "🎓", title: "Études Supérieures", desc: "Licence Pro ou école d'ingénieurs" },
+];
 
-/* MOBILE */
-@media (max-width: 900px) {
-  #hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 100px; }
-  .hero-right { display: none; }
-  .about-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-  .sem-grid { grid-template-columns: 1fr; }
-  .skills-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-  .career-grid { grid-template-columns: repeat(2, 1fr); }
-  .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-  .nav-links { display: none; }
-  .nav-status { display: none; }
-  section { padding: 70px 5%; }
-}
-@media (max-width: 768px) {
-  section { padding: 50px 4%; }
-  .about-layout { gap: 2rem; }
-  .contact-layout { gap: 2rem; }
-  .career-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 480px) {
-  .career-grid { grid-template-columns: 1fr; }
-  #hero { padding: 80px 4% 40px; }
-  .hero-name { font-size: clamp(2rem, 5vw, 3rem); }
-}
-</style>
-</head>
-<body>
+const contactLinks = [
+  { ic: "✉️", label: "Email",    val: "official.bouarib@gmail.com",        href: "mailto:official.bouarib@gmail.com" },
+  { ic: "📞", label: "Téléphone",val: "+212 606 946 430",                  href: "tel:+212606946430" },
+  { ic: "🔗", label: "LinkedIn", val: "linkedin.com/in/ayoub-networking",  href: "https://linkedin.com/in/ayoub-networking" },
+  { ic: "🐙", label: "GitHub",   val: "github.com/ayoub",                  href: "#" },
+];
 
-<div class
+const infoRows = [
+  ["Nom",         "Ayoub Ait Bouarib",                null],
+  ["École",       "EST Guelmim — Université Ibn Zohr", null],
+  ["Formation",   "DUT Réseaux Informatiques & Sécurités", null],
+  ["Année",       "1ère Année — S2 (En cours)",        null],
+  ["Localisation","Agadir, Souss-Massa, Maroc",        null],
+  ["Email",       "official.bouarib@gmail.com",        "mailto:official.bouarib@gmail.com"],
+  ["Téléphone",   "+212 606 946 430",                  "tel:+212606946430"],
+  ["LinkedIn",    "ayoub-networking",                  "https://linkedin.com/in/ayoub-networking"],
+];
+
+/* ─── MAIN COMPONENT ───────────────────────────────────────────── */
+export default function CV() {
+  const { pos, ring, hov, setHov, touch } = useCursor();
+  const { isMobile, isTablet } = useBreakpoint();
+  const [active, setActive] = useState("hero");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [heroVis, setHeroVis] = useState(false);
+
+  useEffect(() => { setTimeout(() => setHeroVis(true), 80); }, []);
+
+  useEffect(() => {
+    const ids = ["hero","about","curriculum","skills","career","contact"];
+    const onScroll = () => {
+      for (const id of [...ids].reverse()) {
+        const el = document.getElementById(id);
+        if (el && window.scrollY >= el.offsetTop - 110) { setActive(id); break; }
+      }
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollTo = id => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); };
+
+  const navLinks = ["about","curriculum","skills","career","contact"];
+  const navLabels = { about:"À Propos", curriculum:"Cursus", skills:"Compétences", career:"Débouchés", contact:"Contact" };
+
+  const sec = (id, bg, children) => (
+    <section id={id} style={{ padding: isMobile ? "70px 5%" : "100px 6%", background: bg, position: "relative", zIndex: 1 }}>
+      {children}
+    </section>
+  );
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", fontFamily: "Manrope, sans-serif", fontWeight: 300, color: C.light, overflowX: "hidden", cursor: touch ? "auto" : "none" }}>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{cursor:${touch?"auto":"none"}!important;}
+        a,button{cursor:${touch?"pointer":"none"}!important;}
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-track{background:#111317;}
+        ::-webkit-scrollbar-thumb{background:#2a2e38;border-radius:4px;}
+        ::-webkit-scrollbar-thumb:hover{background:#3b82f6;}
+        ::selection{background:rgba(59,130,246,0.3);color:#f8fafc;}
+        input,textarea{color:#e5e9f0 !important;}
+        input::placeholder,textarea::placeholder{color:#6b7280 !important;}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+        @keyframes gridMove{from{background-position:0 0}to{background-position:64px 64px}}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+      `}</style>
+
+      {/* Custom cursor — desktop only */}
+      {!touch && <>
+        <div style={{ position:"fixed",left:pos.x,top:pos.y,width:10,height:10,background:C.blue,borderRadius:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none",zIndex:9999,mixBlendMode:"screen",transition:"width .2s,height .2s" }} />
+        <div style={{ position:"fixed",left:ring.x,top:ring.y,width:hov?56:38,height:hov?56:38,border:"1.5px solid rgba(59,130,246,0.4)",borderRadius:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none",zIndex:9998,transition:"width .25s,height .25s" }} />
+      </>}
+
+      {/* BG grid */}
+      <div style={{ position:"fixed",inset:0,zIndex:0,pointerEvents:"none",backgroundImage:"linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px)",backgroundSize:"64px 64px",animation:"gridMove 30s linear infinite" }} />
+      <div style={{ position:"fixed",top:-150,left:-150,width:500,height:500,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.1),transparent 70%)",pointerEvents:"none",zIndex:0,filter:"blur(60px)" }} />
+      <div style={{ position:"fixed",bottom:-100,right:-100,width:400,height:400,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.07),transparent 70%)",pointerEvents:"none",zIndex:0,filter:"blur(60px)" }} />
+
+      {/* ── NAV ── */}
+      <nav style={{ position:"fixed",top:0,left:0,right:0,zIndex:200,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 5%",height:62,background:"rgba(17,19,23,0.94)",backdropFilter:"blur(20px)",borderBottom:`1px solid ${C.border}` }}>
+        <div style={{ fontFamily:"Bebas Neue",fontSize:"1.45rem",letterSpacing:"0.06em",color:C.white }}>
+          Ayoub<span style={{ color:C.blue }}>.</span>dev
+        </div>
+
+        {/* Desktop links */}
+        {!isMobile && (
+          <ul style={{ listStyle:"none",display:"flex",gap:"1.8rem" }}>
+            {navLinks.map(id => (
+              <li key={id}>
+                <span onClick={() => scrollTo(id)} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                  style={{ fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",color:active===id?C.blue:C.muted,fontWeight:600,cursor:"none",transition:"color .2s",fontFamily:"JetBrains Mono",borderBottom:active===id?`1px solid ${C.blue}`:"1px solid transparent",paddingBottom:2 }}>
+                  {navLabels[id]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div style={{ display:"flex",alignItems:"center",gap:12 }}>
+          {!isMobile && (
+            <div style={{ background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.28)",borderRadius:20,padding:"5px 14px",display:"flex",alignItems:"center",gap:8,fontSize:10,color:C.sky,fontFamily:"JetBrains Mono",letterSpacing:"0.08em" }}>
+              <span style={{ width:6,height:6,borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 8px #22c55e",animation:"blink 2s infinite",display:"inline-block" }} />
+              Stage Recherché
+            </div>
+          )}
+
+          {/* Mobile hamburger */}
+          {isMobile && (
+            <button onClick={() => setMenuOpen(o => !o)} style={{ background:"none",border:`1px solid ${C.border}`,borderRadius:6,padding:"6px 10px",color:C.light,cursor:"pointer",fontSize:18,lineHeight:1 }}>
+              {menuOpen ? "✕" : "☰"}
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* Mobile dropdown menu */}
+      {isMobile && menuOpen && (
+        <div style={{ position:"fixed",top:62,left:0,right:0,zIndex:199,background:C.surface,borderBottom:`1px solid ${C.border}`,padding:"12px 5%",animation:"slideDown .25s ease" }}>
+          {navLinks.map(id => (
+            <div key={id} onClick={() => scrollTo(id)}
+              style={{ padding:"12px 0",fontSize:14,letterSpacing:"0.1em",textTransform:"uppercase",color:active===id?C.blue:C.muted,fontWeight:600,fontFamily:"JetBrains Mono",borderBottom:`1px solid ${C.border}`,cursor:"pointer" }}>
+              {navLabels[id]}
+            </div>
+          ))}
+          <div style={{ paddingTop:12,fontSize:12,color:C.sky,fontFamily:"JetBrains Mono",display:"flex",alignItems:"center",gap:8 }}>
+            <span style={{ width:6,height:6,borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 8px #22c55e",animation:"blink 2s infinite",display:"inline-block" }} />
+            Cherche un Stage
+          </div>
+        </div>
+      )}
+
+      {/* ── HERO ── */}
+      <section id="hero" style={{ minHeight:"100vh",display:"flex",flexDirection: isMobile?"column":"row",alignItems:"center",padding: isMobile?"90px 5% 60px" : isTablet?"90px 5% 60px":"90px 6% 60px",gap: isMobile?32:48,position:"relative",zIndex:1,overflow:"hidden" }}>
+        {/* diagonal panel — desktop only */}
+        {!isMobile && <div style={{ position:"absolute",right:0,top:0,bottom:0,width:460,background:C.surface,clipPath:"polygon(10% 0,100% 0,100% 100%,0% 100%)",zIndex:0 }} />}
+
+        {/* LEFT */}
+        <div style={{ flex:1,position:"relative",zIndex:1 }}>
+          <div style={{ fontFamily:"JetBrains Mono",fontSize:10,color:C.blue,letterSpacing:"0.22em",textTransform:"uppercase",marginBottom:20,display:"flex",alignItems:"center",gap:12,opacity:heroVis?1:0,transform:heroVis?"translateY(0)":"translateY(18px)",transition:"opacity .7s ease .1s,transform .7s ease .1s" }}>
+            <span style={{ width:24,height:1,background:C.blue,display:"inline-block",flexShrink:0 }} />
+            DUT · Réseaux Informatiques & Sécurités · S2
+          </div>
+          <h1 style={{ fontFamily:"Bebas Neue",fontSize:isMobile?"clamp(3.2rem,15vw,5rem)":"clamp(4rem,8vw,7.5rem)",lineHeight:.95,letterSpacing:"0.03em",color:C.white,opacity:heroVis?1:0,transform:heroVis?"translateY(0)":"translateY(22px)",transition:"opacity .7s ease .25s,transform .7s ease .25s" }}>
+            Ayoub<br /><span style={{ color:"transparent",WebkitTextStroke:`2px ${C.blue}` }}>Ait Bouarib</span>
+          </h1>
+          <p style={{ marginTop:18,fontSize:isMobile?14:15,color:C.muted,lineHeight:1.8,maxWidth:440,opacity:heroVis?1:0,transform:heroVis?"translateY(0)":"translateY(22px)",transition:"opacity .7s ease .4s,transform .7s ease .4s" }}>
+            Étudiant passionné par <span style={{ color:C.sky,fontWeight:500 }}>l'administration réseau</span> et la <span style={{ color:C.sky,fontWeight:500 }}>cybersécurité</span>. Je construis mes compétences via le DUT et l'auto-apprentissage.
+          </p>
+          <div style={{ display:"flex",gap:10,marginTop:28,flexWrap:"wrap",opacity:heroVis?1:0,transform:heroVis?"translateY(0)":"translateY(22px)",transition:"opacity .7s ease .55s,transform .7s ease .55s" }}>
+            <Btn fill onClick={() => scrollTo("contact")} setHov={setHov}>Me Contacter</Btn>
+            <Btn onClick={() => scrollTo("curriculum")} setHov={setHov}>Voir le Cursus</Btn>
+          </div>
+        </div>
+
+        {/* PROFILE CARD — hidden on mobile */}
+        {!isMobile && (
+          <div style={{ width: isTablet?320:400,flexShrink:0,position:"relative",zIndex:1,opacity:heroVis?1:0,transform:heroVis?"translateX(0)":"translateX(28px)",transition:"opacity .9s ease .3s,transform .9s ease .3s" }}>
+            <ProfileCard setHov={setHov} scrollTo={scrollTo} />
+          </div>
+        )}
+
+        {/* Mobile mini stats */}
+        {isMobile && (
+          <div style={{ width:"100%",opacity:heroVis?1:0,transition:"opacity .9s ease .5s" }}>
+            <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10 }}>
+              {[["S2","Actuel"],["27","Modules"],["2","Certifs"]].map(([n,l]) => (
+                <div key={l} style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 8px",textAlign:"center" }}>
+                  <div style={{ fontFamily:"Bebas Neue",fontSize:"1.6rem",color:C.sky,letterSpacing:"0.04em" }}>{n}</div>
+                  <div style={{ fontSize:10,color:C.muted,letterSpacing:"0.06em",textTransform:"uppercase",marginTop:2,fontFamily:"JetBrains Mono" }}>{l}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop:12,background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px" }}>
+              {[["📍","Agadir, Souss-Massa"],["🏫","EST Guelmim — Ibn Zohr"],["🔗","ayoub-networking","https://linkedin.com/in/ayoub-networking"]].map(([ic,v,href])=>(
+                <div key={v} style={{ display:"flex",gap:10,fontSize:13,color:C.muted,marginBottom:8,alignItems:"center" }}>
+                  <span>{ic}</span>
+                  {href ? <a href={href} target="_blank" rel="noreferrer" style={{ color:C.sky,textDecoration:"none" }}>{v}</a> : <span>{v}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── ABOUT ── */}
+      {sec("about", C.surface,
+        <>
+          <SectionLabel num="01" title="À Propos" />
+          <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":isTablet?"1fr":"1.1fr 1fr",gap:isMobile?32:"5rem",alignItems:"start" }}>
+            <FadeIn>
+              <div style={{ fontSize:isMobile?14:15,color:C.muted,lineHeight:1.9 }}>
+                <p style={{ marginBottom:14 }}>Étudiant en <span style={{ color:C.sky,fontWeight:500 }}>DUT Réseaux Informatiques et Sécurité</span> à l'École Supérieure de Technologie de Guelmim, Université Ibn Zohr.</p>
+                <p style={{ marginBottom:14 }}>Passionné par les systèmes, l'administration réseau et la cybersécurité, je développe mes compétences en <span style={{ color:C.sky,fontWeight:500 }}>infrastructures digitales</span>, programmation et sécurité.</p>
+                <div style={{ borderLeft:`3px solid ${C.blue}`,paddingLeft:18,margin:"20px 0",color:C.light,fontStyle:"italic",fontSize:13,background:"rgba(59,130,246,0.05)",borderRadius:"0 8px 8px 0",padding:"12px 18px" }}>
+                  « Ouvert aux stages, projets et collaborations afin de renforcer mes compétences professionnelles. »
+                </div>
+                <p>Actuellement en <span style={{ color:C.sky,fontWeight:500 }}>Semestre 2</span>, je cherche activement un <span style={{ color:C.sky,fontWeight:500 }}>stage d'initiation</span>.</p>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.15}>
+              <Card hover={false} style={{ padding:0,overflow:"hidden" }}>
+                {infoRows.map(([k,v,href],i) => (
+                  <div key={k} style={{ display:"flex",gap:12,padding:"11px 18px",borderBottom:i<infoRows.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start",flexWrap:"wrap" }}>
+                    <span style={{ fontFamily:"JetBrains Mono",fontSize:9,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:C.blue,minWidth:80,paddingTop:2,flexShrink:0 }}>{k}</span>
+                    {href
+                      ? <a href={href} target={href.startsWith("http")?"_blank":"_self"} rel="noreferrer" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{ fontSize:13,color:C.sky,textDecoration:"none",wordBreak:"break-all" }}>{v}</a>
+                      : <span style={{ fontSize:13,color:C.light,wordBreak:"break-all" }}>{v}</span>
+                    }
+                  </div>
+                ))}
+                <div style={{ display:"flex",gap:12,padding:"11px 18px",alignItems:"center",flexWrap:"wrap" }}>
+                  <span style={{ fontFamily:"JetBrains Mono",fontSize:9,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:C.blue,minWidth:80,flexShrink:0 }}>Statut</span>
+                  <span style={{ fontSize:13,color:"#22c55e",fontWeight:500 }}>● Cherche un Stage</span>
+                </div>
+              </Card>
+            </FadeIn>
+          </div>
+        </>
+      )}
+
+      {/* ── CURRICULUM ── */}
+      {sec("curriculum", C.bg,
+        <>
+          <SectionLabel num="02" title="Programme Académique" />
+          <FadeIn><p style={{ color:C.muted,marginBottom:36,fontSize:13,maxWidth:540,fontFamily:"JetBrains Mono",letterSpacing:"0.04em",lineHeight:1.6 }}>27 modules · 1 350h · École Supérieure de Technologie, Guelmim</p></FadeIn>
+          <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":isTablet?"1fr":"repeat(2,1fr)",gap:18 }}>
+            {semData.map((s,i) => <FadeIn key={s.label} delay={isMobile?0:i*.08}><SemCard s={s} setHov={setHov} /></FadeIn>)}
+          </div>
+        </>
+      )}
+
+      {/* ── SKILLS ── */}
+      {sec("skills", C.surface,
+        <>
+          <SectionLabel num="03" title="Compétences" />
+          <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":isTablet?"1fr":"1fr 1fr",gap:isMobile?36:"4rem",alignItems:"start" }}>
+            {/* Skill categories */}
+            <div>
+              <FadeIn><MonoLabel>// Compétences acquises · S1 & S2 uniquement</MonoLabel></FadeIn>
+              <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr",gap:12 }}>
+                {skillsData.map((sk,i) => (
+                  <FadeIn key={sk.title} delay={i*.07}>
+                    <Card>
+                      <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:10,flexWrap:"wrap" }}>
+                        <span style={{ fontSize:17 }}>{sk.icon}</span>
+                        <span style={{ fontFamily:"Bebas Neue",fontSize:"1.05rem",letterSpacing:"0.04em",color:C.white }}>{sk.title}</span>
+                        <span style={{ fontFamily:"JetBrains Mono",fontSize:9,color:C.blue,background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.2)",padding:"2px 7px",borderRadius:4,marginLeft:"auto",letterSpacing:"0.08em",whiteSpace:"nowrap" }}>{sk.sem}</span>
+                      </div>
+                      <div>{sk.tags.map(t => <Tag key={t}>{t}</Tag>)}</div>
+                    </Card>
+                  </FadeIn>
+                ))}
+              </div>
+            </div>
+
+            {/* Bars + certs + languages */}
+            <div>
+              <FadeIn>
+                <MonoLabel>// Niveau de maîtrise</MonoLabel>
+                {barsData.map(b => <Bar key={b.label} {...b} />)}
+              </FadeIn>
+
+              <FadeIn delay={.2} style={{ marginTop:32 }}>
+                <MonoLabel>// Certifications</MonoLabel>
+                {[
+                  { ic:"🌍",name:"EF SET English Certificate",badge:"B2",sub:"EF Standard English Test · Score : 51/100" },
+                  { ic:"🏅",name:"Intro to Cybersecurity Awareness",sub:"HP LIFE · Décembre 2025 · ID: 74fb5372" },
+                ].map(c => (
+                  <div key={c.name} style={{ display:"flex",gap:12,alignItems:"flex-start",padding:"13px 16px",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,marginBottom:10,transition:"all .25s" }}
+                    onMouseOver={e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.35)";e.currentTarget.style.transform="translateX(4px)"}}
+                    onMouseOut={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.transform="translateX(0)"}}>
+                    <span style={{ fontSize:20,flexShrink:0 }}>{c.ic}</span>
+                    <div>
+                      <div style={{ fontSize:13,color:C.light,fontWeight:500,marginBottom:4 }}>
+                        {c.name}
+                        {c.badge && <span style={{ fontSize:10,padding:"2px 7px",borderRadius:3,background:"rgba(59,130,246,0.12)",color:C.sky,border:"1px solid rgba(59,130,246,0.2)",marginLeft:8,fontFamily:"JetBrains Mono" }}>{c.badge}</span>}
+                      </div>
+                      <div style={{ fontSize:11,color:C.muted,fontFamily:"JetBrains Mono",letterSpacing:"0.03em" }}>{c.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </FadeIn>
+
+              <FadeIn delay={.3} style={{ marginTop:28 }}>
+                <MonoLabel>// Langues</MonoLabel>
+                <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10 }}>
+                  {[["🇲🇦","Arabe","Natif"],["🇫🇷","Français","Courant"],["🇬🇧","Anglais","B2·51/100"]].map(([f,n,l])=>(
+                    <div key={n} style={{ background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 8px",textAlign:"center" }}>
+                      <div style={{ fontSize:22,marginBottom:5 }}>{f}</div>
+                      <div style={{ fontFamily:"Bebas Neue",fontSize:"1rem",letterSpacing:"0.04em",color:C.white,marginBottom:3 }}>{n}</div>
+                      <div style={{ fontSize:10,color:C.blue,fontFamily:"JetBrains Mono" }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </FadeIn>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── CAREER ── */}
+      {sec("career", C.bg,
+        <>
+          <SectionLabel num="04" title="Débouchés Professionnels" />
+          <FadeIn><p style={{ color:C.muted,marginBottom:36,fontSize:14,maxWidth:520,lineHeight:1.7 }}>Le DUT RIS ouvre les portes à des métiers très demandés dans l'infrastructure IT et la cybersécurité.</p></FadeIn>
+          <div style={{ display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":isTablet?"repeat(2,1fr)":"repeat(4,1fr)",gap:14 }}>
+            {careers.map((c,i) => <FadeIn key={c.title} delay={isMobile?0:i*.06}><CareerCard c={c} setHov={setHov} /></FadeIn>)}
+          </div>
+        </>
+      )}
+
+      {/* ── CONTACT ── */}
+      {sec("contact", C.surface,
+        <>
+          <SectionLabel num="05" title="Contact" />
+          <div style={{ display:"grid",gridTemplateColumns:isMobile?"1fr":isTablet?"1fr":"1fr 1fr",gap:isMobile?36:"5rem",alignItems:"start" }}>
+            <FadeIn>
+              <p style={{ fontSize:14,color:C.muted,lineHeight:1.8,marginBottom:24 }}>
+                En <span style={{ color:C.sky,fontWeight:500 }}>Semestre 2</span> du DUT RIS à l'EST Guelmim, je cherche un <span style={{ color:C.sky,fontWeight:500 }}>stage d'initiation</span>. N'hésitez pas à me contacter.
+              </p>
+              {contactLinks.map(l => (
+                <a key={l.label} href={l.href} target={l.href.startsWith("http")?"_blank":"_self"} rel="noreferrer"
+                  onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                  style={{ display:"flex",alignItems:"center",gap:14,padding:"12px 16px",border:`1px solid ${C.border}`,borderRadius:10,textDecoration:"none",marginBottom:10,background:C.card,transition:"all .25s" }}
+                  onMouseOver={e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.35)";e.currentTarget.style.transform="translateX(5px)";e.currentTarget.style.background="rgba(59,130,246,0.05)"}}
+                  onMouseOut={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.transform="translateX(0)";e.currentTarget.style.background=C.card}}>
+                  <span style={{ fontSize:18,minWidth:22,textAlign:"center" }}>{l.ic}</span>
+                  <div style={{ overflow:"hidden" }}>
+                    <div style={{ fontFamily:"JetBrains Mono",fontSize:9,color:C.blue,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:2 }}>{l.label}</div>
+                    <div style={{ fontSize:12,color:C.sky,wordBreak:"break-all" }}>{l.val}</div>
+                  </div>
+                </a>
+              ))}
+            </FadeIn>
+
+            <FadeIn delay={.15}>
+              <Card hover={false}>
+                {[{label:"Votre Nom",type:"text",ph:"Nom complet"},{label:"Email",type:"email",ph:"email@example.com"}].map(f=>(
+                  <div key={f.label} style={{ marginBottom:14 }}>
+                    <label style={{ display:"block",fontFamily:"JetBrains Mono",fontSize:9,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:C.blue,marginBottom:7 }}>{f.label}</label>
+                    <input type={f.type} placeholder={f.ph}
+                      style={{ width:"100%",background:"rgba(255,255,255,0.04)",border:`1px solid ${C.border}`,borderRadius:8,padding:"11px 14px",fontFamily:"Manrope",fontSize:14,outline:"none" }}
+                      onFocus={e=>{e.target.style.borderColor=C.blue;e.target.style.boxShadow="0 0 0 3px rgba(59,130,246,0.1)"}}
+                      onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow="none"}}
+                    />
+                  </div>
+                ))}
+                <div style={{ marginBottom:18 }}>
+                  <label style={{ display:"block",fontFamily:"JetBrains Mono",fontSize:9,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:C.blue,marginBottom:7 }}>Message</label>
+                  <textarea placeholder="Proposition de stage, collaboration..." rows={4}
+                    style={{ width:"100%",background:"rgba(255,255,255,0.04)",border:`1px solid ${C.border}`,borderRadius:8,padding:"11px 14px",fontFamily:"Manrope",fontSize:14,outline:"none",resize:"vertical" }}
+                    onFocus={e=>{e.target.style.borderColor=C.blue;e.target.style.boxShadow="0 0 0 3px rgba(59,130,246,0.1)"}}
+                    onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.boxShadow="none"}}
+                  />
+                </div>
+                <Btn fill fullWidth setHov={setHov}>Envoyer le Message</Btn>
+              </Card>
+            </FadeIn>
+          </div>
+        </>
+      )}
+
+      <footer style={{ background:C.bg,borderTop:`1px solid ${C.border}`,textAlign:"center",padding:"22px 5%",fontFamily:"JetBrains Mono",fontSize:10,color:C.muted,letterSpacing:"0.06em" }}>
+        Ayoub Ait Bouarib · DUT RIS · <span style={{ color:C.blue }}>EST Guelmim</span> · Université Ibn Zohr · <span style={{ color:C.blue }}>2025–2026</span>
+      </footer>
+    </div>
+  );
+}
+
+/* ─── SUB-COMPONENTS ───────────────────────────────────────────── */
+function Btn({ children, fill=false, fullWidth=false, onClick, setHov }) {
+  const [h, setH] = useState(false);
+  return (
+    <button onClick={onClick}
+      onMouseEnter={()=>{setH(true);setHov?.(true)}} onMouseLeave={()=>{setH(false);setHov?.(false)}}
+      style={{ width:fullWidth?"100%":"auto",padding:"10px 22px",background:fill?(h?"#2563eb":"#3b82f6"):"transparent",color:fill?"#fff":(h?"#fff":C.blue),border:fill?"none":`1.5px solid ${h?"#fff":C.blue}`,borderRadius:6,fontFamily:"Manrope",fontSize:12,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",cursor:"none",transform:h?"translateY(-2px)":"translateY(0)",boxShadow:fill&&h?"0 8px 20px rgba(59,130,246,0.35)":"none",transition:"all .25s" }}>
+      {children}
+    </button>
+  );
+}
+
+function ProfileCard({ setHov, scrollTo }) {
+  return (
+    <div style={{ background:C.card,borderRadius:16,padding:"26px 22px",border:"1px solid rgba(59,130,246,0.2)",position:"relative",overflow:"hidden" }}>
+      <div style={{ position:"absolute",top:-60,right:-60,width:180,height:180,borderRadius:"50%",background:"radial-gradient(circle,rgba(59,130,246,0.15),transparent 70%)",pointerEvents:"none" }} />
+      <div style={{ width:62,height:62,borderRadius:"50%",background:`linear-gradient(135deg,#1e3a5f,${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,marginBottom:14,border:"2px solid rgba(59,130,246,0.3)" }}>🛡️</div>
+      <div style={{ fontFamily:"Bebas Neue",fontSize:"1.35rem",letterSpacing:"0.04em",color:C.white,marginBottom:3 }}>Ayoub Ait Bouarib</div>
+      <div style={{ fontFamily:"JetBrains Mono",fontSize:10,color:C.blue,letterSpacing:"0.08em",marginBottom:18 }}>Network & Cybersecurity Student</div>
+      <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:18 }}>
+        {[["S2","Actuel"],["27","Modules"],["2","Certifs"]].map(([n,l])=>(
+          <div key={l} style={{ background:"rgba(59,130,246,0.07)",border:"1px solid rgba(59,130,246,0.15)",borderRadius:8,padding:"9px 4px",textAlign:"center" }}>
+            <div style={{ fontFamily:"Bebas Neue",fontSize:"1.15rem",color:C.sky,letterSpacing:"0.04em" }}>{n}</div>
+            <div style={{ fontSize:9,color:C.muted,letterSpacing:"0.06em",textTransform:"uppercase",marginTop:2 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display:"flex",flexWrap:"wrap",gap:5,marginBottom:18 }}>
+        {["Networking","Linux","Packet Tracer","SQL","Cybersécurité","HTML/CSS"].map(t=>(
+          <span key={t} style={{ fontSize:10,padding:"3px 8px",borderRadius:20,background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.2)",color:C.sky,fontFamily:"JetBrains Mono" }}>{t}</span>
+        ))}
+      </div>
+      <div style={{ height:1,background:C.border,margin:"4px 0 14px" }} />
+      {[["📍","Agadir, Souss-Massa, Maroc"],["🏫","EST Guelmim — Ibn Zohr"],["🔗","ayoub-networking","https://linkedin.com/in/ayoub-networking"]].map(([ic,v,href])=>(
+        <div key={v} style={{ display:"flex",alignItems:"center",gap:10,fontSize:12,color:C.muted,marginBottom:7 }}>
+          <span>{ic}</span>
+          {href ? <a href={href} target="_blank" rel="noreferrer" onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{ color:C.sky,textDecoration:"none" }}>{v}</a> : <span>{v}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SemCard({ s, setHov }) {
+  const [h, setH] = useState(false);
+  return (
+    <div onMouseEnter={()=>{setH(true);setHov(true)}} onMouseLeave={()=>{setH(false);setHov(false)}}
+      style={{ borderRadius:12,overflow:"hidden",border:`1px solid ${h?"rgba(59,130,246,0.35)":C.border}`,background:C.card,transform:h?"translateY(-3px)":"translateY(0)",boxShadow:h?"0 12px 30px rgba(0,0,0,0.4)":"none",transition:"all .3s" }}>
+      <div style={{ padding:"13px 18px",display:"flex",justifyContent:"space-between",alignItems:"center",background:s.hBg,borderBottom:`1px solid ${s.hBd}`,flexWrap:"wrap",gap:8 }}>
+        <span style={{ fontFamily:"Bebas Neue",fontSize:"1.05rem",letterSpacing:"0.04em",color:C.white }}>{s.label}</span>
+        <span style={{ fontSize:9,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",padding:"3px 9px",borderRadius:20,background:s.chipBg,color:s.chipCol,border:`1px solid ${s.chipBd}`,fontFamily:"JetBrains Mono",whiteSpace:"nowrap" }}>{s.chip}</span>
+      </div>
+      <ul style={{ padding:"6px 18px",listStyle:"none" }}>
+        {s.modules.map((m,i)=>(
+          <li key={i} style={{ display:"flex",gap:10,alignItems:"baseline",padding:"5px 0",borderBottom:i<s.modules.length-1?"1px solid rgba(59,130,246,0.05)":"none",fontSize:12,color:C.muted }}>
+            <span style={{ fontFamily:"JetBrains Mono",fontSize:9,fontWeight:600,color:C.blue,minWidth:24,flexShrink:0 }}>{m.split("—")[0].trim()}</span>
+            <span>{m.split("—")[1]?.trim()}</span>
+          </li>
+        ))}
+      </ul>
+      {s.note && <div style={{ margin:"0 18px 14px",fontSize:11,color:"#f59e0b",background:"rgba(245,158,11,0.08)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:6,padding:"7px 12px",fontFamily:"JetBrains Mono",letterSpacing:"0.03em" }}>{s.note}</div>}
+    </div>
+  );
+}
+
+function CareerCard({ c, setHov }) {
+  const [h, setH] = useState(false);
+  return (
+    <div onMouseEnter={()=>{setH(true);setHov(true)}} onMouseLeave={()=>{setH(false);setHov(false)}}
+      style={{ background:C.card,border:`1px solid ${h?"rgba(59,130,246,0.35)":C.border}`,borderRadius:10,padding:"18px 14px",transition:"all .25s",transform:h?"translateY(-4px)":"translateY(0)",boxShadow:h?"0 12px 28px rgba(0,0,0,0.35)":"none",position:"relative",overflow:"hidden" }}>
+      <div style={{ position:"absolute",bottom:0,left:0,right:0,height:3,background:`linear-gradient(90deg,#1d4ed8,${C.sky})`,transform:h?"scaleX(1)":"scaleX(0)",transformOrigin:"left",transition:"transform .3s" }} />
+      <div style={{ fontSize:26,marginBottom:10 }}>{c.icon}</div>
+      <div style={{ fontFamily:"Bebas Neue",fontSize:"1rem",letterSpacing:"0.04em",color:C.white,marginBottom:5 }}>{c.title}</div>
+      <div style={{ fontSize:12,color:C.muted,lineHeight:1.5 }}>{c.desc}</div>
+    </div>
+  );
+}
